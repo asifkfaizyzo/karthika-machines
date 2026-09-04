@@ -4,7 +4,9 @@ import helmet from "helmet";
 import dotenv from "dotenv";
 
 import productRoutes from "./modules/products/productRoutes.js";
+import courseRoutes from "./modules/courses/courseRoutes.js";
 import consultationRoutes from "./modules/consultations/consultationRoutes.js";
+import uploadRoutes from "./modules/uploads/uploadRoutes.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
 dotenv.config();
@@ -29,7 +31,12 @@ app.get("/api/health", (req, res) => {
 });
 
 // Register Feature Modules
+//Image & Media Upload Route (Cloudinary)
+app.use("/api/upload", uploadRoutes); 
+
+
 app.use("/api/products", productRoutes);
+app.use("/api/courses", courseRoutes);
 app.use("/api/consultations", consultationRoutes);
 
 // Global Error Handler
