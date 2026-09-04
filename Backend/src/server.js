@@ -1,0 +1,40 @@
+import express from "express";
+import cors from "cors";
+import helmet from "helmet";
+import dotenv from "dotenv";
+
+import productRoutes from "./modules/products/productRoutes.js";
+import consultationRoutes from "./modules/consultations/consultationRoutes.js";
+import { errorHandler } from "./middleware/errorHandler.js";
+
+dotenv.config();
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+// Security & Body Parsers
+app.use(helmet());
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    credentials: true,
+  })
+);
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Health Check
+app.get("/api/health", (req, res) => {
+  res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
+// Register Feature Modules
+app.use("/api/products", productRoutes);
+app.use("/api/consultations", consultationRoutes);
+
+// Global Error Handler
+app.use(errorHandler);
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+});

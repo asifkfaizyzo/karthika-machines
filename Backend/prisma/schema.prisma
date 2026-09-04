@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+
+
+// --------------------------------------------------------------------------
+// PRODUCTS (machines/equipment)
+// --------------------------------------------------------------------------
+
+model Product {
+  id               Int       @id @default(autoincrement())
+  title            String
+  slug             String    @unique
+  price            String    // "G�1,75,000*" G�� stored as string
+  shortDescription String    // shown on product cards
+  longDescription  String    // "About Products" section (full text)
+  mainImage        String    // product card image URL
+  aboutImage       String?   // about section image URL
+  rating           Float     @default(4.0)
+  isActive         Boolean   @default(true)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  // Relations
+  features   ProductFeature[]
+  specs      ProductSpec[]
+  whyChoose  ProductWhyChoose[]
+
+  @@map("products")
+}
+
+model ProductFeature {
+  id        Int     @id @default(autoincrement())
+  text      String  // "Lorem Ipsum Is Simply Dummy..."
+  order     Int     @default(0)
+  productId Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_features")
+}
+
+model ProductSpec {
+  id        Int     @id @default(autoincrement())
+  label     String  // "Display", "Power Supply"
+  value     String  // "10-Inch Touchscreen", "AC 220V"
+  order     Int     @default(0)
+  productId Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_specs")
+}
+
+model ProductWhyChoose {
+  id        Int     @id @default(autoincrement())
+  title     String  // accordion title
+  detail    String  // accordion body text
+  order     Int     @default(0)
+  productId Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_why_choose")
+}
+
+// ----------------------------------------------------------------
+// CONSULTATIONS (form submissions)
+// ----------------------------------------------------------------
+
+model Consultation {
+  id                Int      @id @default(autoincrement())
+  fullName          String
+  email             String
+  phone             String
+  businessName      String
+  role              String?
+  city              String?
+  interest          String   // "Diode Laser Machine", etc.
+  connectionMethods String[] // ["phone", "whatsapp"]
+  additionalInfo    String?
+  status            String   @default("NEW") // NEW | CONTACTED | CONVERTED
+  createdAt         DateTime @default(now())
+
+  @@map("consultations")
+}
