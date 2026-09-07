@@ -8,6 +8,8 @@ import courseRoutes from "./modules/courses/courseRoutes.js";
 import consultationRoutes from "./modules/consultations/consultationRoutes.js";
 import testimonialRoutes from "./modules/testimonials/testimonialRoutes.js";
 import faqRoutes from "./modules/faqs/faqRoutes.js";
+import founderRoutes from "./modules/founders/founderRoutes.js";
+import contactRoutes from "./modules/contacts/contactRoutes.js";
 import uploadRoutes from "./modules/uploads/uploadRoutes.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
@@ -42,6 +44,8 @@ app.use("/api/courses", courseRoutes);
 app.use("/api/consultations", consultationRoutes);
 app.use("/api/testimonials", testimonialRoutes);
 app.use("/api/faqs", faqRoutes);
+app.use("/api/founders", founderRoutes);
+app.use("/api/contacts", contactRoutes);
 
 // Global Error Handler
 app.use(errorHandler);

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import api from "../api/axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import ConsultationModal from "../components/ConsultationModel";
@@ -8,6 +9,9 @@ import locationImg from "../assets/conlocation.png"; // change filename if diffe
 const Contact = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [agreed, setAgreed] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [serverError, setServerError] = useState("");
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -16,19 +20,78 @@ const Contact = () => {
   });
 
   const handleChange = (e) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    if (name === "phone") {
+      const formatted = value.replace(/[^0-9+\s-]/g, "");
+      setForm((prev) => ({ ...prev, [name]: formatted }));
+      const digits = formatted.replace(/\D/g, "");
+      if (digits.length >= 10 && digits.length <= 12) {
+        if (errors.phone) setErrors((prev) => ({ ...prev, phone: "" }));
+      }
+    } else {
+      setForm((prev) => ({ ...prev, [name]: value }));
+      if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
 
-  const handleSubmit = (e) => {
+  const validateForm = () => {
+    const newErrors = {};
+    if (!form.name.trim()) newErrors.name = "Full name is required";
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!form.email.trim()) {
+      newErrors.email = "Email address is required";
+    } else if (!emailRegex.test(form.email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+
+    const phoneDigits = form.phone.replace(/\D/g, "");
+    if (!phoneDigits || phoneDigits.length < 10 || phoneDigits.length > 12) {
+      newErrors.phone = "Please enter a valid 10-digit phone number";
+    }
+
+    if (!form.message.trim() || form.message.trim().length < 5) {
+      newErrors.message = "Message must be at least 5 characters";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!agreed) return;
-    setIsModalOpen(true); // Opens Book a Consultation modal
+    if (!validateForm()) return;
+
+    setSubmitting(true);
+    setServerError("");
+    setErrors({});
+
+    try {
+      const response = await api.post("/contacts", form);
+      alert(response.data?.message || "Thank you! Your message has been sent.");
+      setForm({ name: "", phone: "", email: "", message: "" });
+      setAgreed(false);
+    } catch (err) {
+      console.error("Submission failed:", err);
+      const apiErrors = err.response?.data?.errors;
+      if (Array.isArray(apiErrors) && apiErrors.length > 0) {
+        const backendErrors = {};
+        apiErrors.forEach((e) => { backendErrors[e.field] = e.message; });
+        setErrors(backendErrors);
+      } else {
+        setServerError(err.response?.data?.message || "Failed to submit. Please try again.");
+      }
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  
+  const getInputClass = (field) =>
+    `w-full bg-transparent border-0 border-b px-0 py-3 text-sm text-black placeholder:text-gray-500 outline-none transition-colors ${
+      errors[field] ? "border-red-500 focus:border-red-500" : "border-gray-400 focus:border-[#d49570]"
+    }`;
 
-    const inputClass =
-    "w-full bg-transparent border-0 border-b border-gray-400 px-0 py-3 text-sm text-black placeholder:text-gray-500 outline-none focus:border-[#d49570] transition-colors";
 
   return (
     <div className="bg-[#f5f5f5] min-h-screen font-['Plus_Jakarta_Sans',sans-serif]">
@@ -180,76 +243,50 @@ const Contact = () => {
             </div>
           </div>
 
-          {/* ===== RIGHT — FORM CARD ===== */}
+           {/* ===== RIGHT — FORM CARD ===== */}
           <div className="bg-white rounded-2xl shadow-[0_16px_50px_rgba(0,0,0,0.12)] p-6 md:p-8 w-full max-w-md lg:max-w-none lg:justify-self-end">
-          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
               <div>
-                <label className="block text-xl text-gray-500 mb-1">Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={form.name}
-                  onChange={handleChange}
-                  className={inputClass}
-                  required
-                />
+                <label className="block text-xl text-gray-500 mb-1">Name <span className="text-red-500">*</span></label>
+                <input type="text" name="name" value={form.name} onChange={handleChange} className={getInputClass("name")} required />
+                {errors.name && <p className="text-xs text-red-500 font-medium mt-1">{errors.name}</p>}
               </div>
 
               <div>
-                <label className="block text-xl text-gray-500 mb-1">Phone</label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={form.phone}
-                  onChange={handleChange}
-                  className={inputClass}
-                />
+                <label className="block text-xl text-gray-500 mb-1">Phone <span className="text-red-500">*</span></label>
+                <input type="tel" name="phone" placeholder="Enter 10-digit phone number" value={form.phone} onChange={handleChange} className={getInputClass("phone")} required />
+                {errors.phone && <p className="text-xs text-red-500 font-medium mt-1">{errors.phone}</p>}
               </div>
 
               <div>
-                <label className="block text-xl text-gray-500 mb-1">Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={form.email}
-                  onChange={handleChange}
-                  className={inputClass}
-                  required
-                />
+                <label className="block text-xl text-gray-500 mb-1">Email <span className="text-red-500">*</span></label>
+                <input type="email" name="email" value={form.email} onChange={handleChange} className={getInputClass("email")} required />
+                {errors.email && <p className="text-xs text-red-500 font-medium mt-1">{errors.email}</p>}
               </div>
 
               <div>
-                <label className="block text-xl text-gray-500 mb-1">
-                  Message
-                </label>
-                <textarea
-                  name="message"
-                  value={form.message}
-                  onChange={handleChange}
-                  rows={3}
-                  className={`${inputClass} resize-none`}
-                  required
-                />
+                <label className="block text-xl text-gray-500 mb-1">Message <span className="text-red-500">*</span></label>
+                <textarea name="message" value={form.message} onChange={handleChange} rows={3} className={`${getInputClass("message")} resize-none`} required />
+                {errors.message && <p className="text-xs text-red-500 font-medium mt-1">{errors.message}</p>}
               </div>
+
+              {serverError && <p className="text-xs text-red-500 font-medium text-center">{serverError}</p>}
 
               <label className="flex items-start gap-2.5 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={agreed}
-                  onChange={(e) => setAgreed(e.target.checked)}
-                  className="mt-0.5 w-4 h-4 rounded border-gray-300 accent-[#d49570] cursor-pointer"
-                />
-                <span className="text-xs text-gray-500 leading-relaxed">
-                  I agree that my submitted data is being collected and stored.
-                </span>
+                <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="mt-0.5 w-4 h-4 rounded border-gray-300 accent-[#d49570] cursor-pointer" />
+                <span className="text-xs text-gray-500 leading-relaxed">I agree that my submitted data is being collected and stored.</span>
               </label>
 
-              <button
-                type="submit"
-                className="self-start bg-[#d4a07a] hover:bg-[#c98358] text-white text-sm font-medium px-6 py-3 rounded-md transition-all duration-200 hover:shadow-[3px_3px_0px_0px_#000000] hover:-translate-x-[1px] hover:-translate-y-[1px]"
-              >
-                Send Message
+              <button type="submit" disabled={!agreed || submitting} className="self-start bg-[#d4a07a] hover:bg-[#c98358] text-white text-sm font-medium px-6 py-3 rounded-md transition-all duration-200 hover:shadow-[3px_3px_0px_0px_#000000] hover:-translate-x-[1px] hover:-translate-y-[1px] disabled:opacity-50">
+                {submitting ? "Sending..." : "Send Message"}
               </button>
+                            {/* <button
+                type="submit"
+                disabled={!agreed || submitting}
+                className="self-start inline-flex items-center justify-center bg-[#d49570] hover:bg-[#c98358] text-white text-xs sm:text-sm font-medium px-5 py-3.5 rounded-md shadow-none hover:shadow-[5px_5px_0px_0px_#000000] hover:-translate-x-[2px] hover:-translate-y-[2px] transition-all duration-200 whitespace-nowrap disabled:opacity-50"
+              >
+                {submitting ? "Sending..." : "Send Message"}
+              </button> */}
             </form>
           </div>
         </div>

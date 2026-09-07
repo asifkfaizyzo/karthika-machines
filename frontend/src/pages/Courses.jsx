@@ -6,7 +6,7 @@ import api from "../api/axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import ConsultationModal from "../components/ConsultationModel";
-import topBackgroundImg from "../assets/courseBG.png";
+import topBackgroundImg from "../assets/courseBG.webp"; // Updated to use the .webp version of the image
 
 const btnCard =
   "flex-1 inline-flex items-center justify-center bg-[#d4a07a] hover:bg-[#c98358] text-white text-sm font-medium px-4 py-3 rounded-md shadow-none hover:shadow-[4px_4px_0px_0px_#000000] hover:-translate-x-[1px] hover:-translate-y-[1px] transition-all duration-200 whitespace-nowrap";

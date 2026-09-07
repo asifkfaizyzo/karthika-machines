@@ -2,8 +2,9 @@ import { Router } from "express";
 import {
   getProducts,
   getProductDetail,
-  addProduct,editProduct,
-  removeProduct,changeProductStatus
+  addProduct, bulkAddProducts,editProduct,
+  removeProduct, removeAllProducts,
+  removeBulkProducts,changeProductStatus
 } from "./productController.js";
 
 const router = Router();
@@ -12,6 +13,10 @@ const router = Router();
 router.get("/", getProducts);
 router.get("/:identifier", getProductDetail);
 router.post("/", addProduct);                 // Developer add product route
+router.post("/bulk", bulkAddProducts); 
+
+router.delete("/all", removeAllProducts);     // 👈 Delete All Products
+router.delete("/bulk", removeBulkProducts);   // 👈 Bulk Delete by IDs
 
 router.put("/:id", editProduct);              // Update
 router.delete("/:id", removeProduct);         // Hard Delete

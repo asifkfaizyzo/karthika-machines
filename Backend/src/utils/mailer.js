@@ -1,41 +1,88 @@
 import nodemailer from "nodemailer";
+import dotenv from "dotenv";
 
-export const sendConsultationNotification = async (data) => {
-  // If SMTP is not configured, skip email sending without crashing
-  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    console.log("ℹ️ SMTP credentials not configured in .env. Skipping email dispatch.");
-    return;
-  }
+dotenv.config();
 
-  const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || "smtp.gmail.com",
-    port: parseInt(process.env.SMTP_PORT || "587"),
-    secure: false,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-  });
+// Create transporter using your .env SMTP variables
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST || "smtp.gmail.com",
+  port: parseInt(process.env.SMTP_PORT, 10) || 587,
+  secure: false, // true for port 465, false for 587
+  auth: {
+    user: process.env.SMTP_USER || process.env.EMAIL_USER,
+    pass: process.env.SMTP_PASS || process.env.EMAIL_PASS,
+  },
+});
 
+const getFromEmail = () => process.env.SMTP_USER || process.env.EMAIL_USER;
+const getToEmail = () =>
+  process.env.NOTIFICATION_EMAIL || process.env.COMPANY_EMAIL || getFromEmail();
+
+// 1. Contact Form Notification (Contact Page)
+export const sendContactNotification = async (inquiry) => {
   const mailOptions = {
-    from: `"Karthika Machines Portal" <${process.env.SMTP_USER}>`,
-    to: process.env.NOTIFICATION_EMAIL || process.env.SMTP_USER,
-    subject: `🔔 New Consultation Request: ${data.fullName}`,
+    from: `"KICS Website" <${getFromEmail()}>`,
+    to: getToEmail(),
+    subject: `📩 New Contact Form Message from ${inquiry.name}`,
     html: `
-      <h2>New Consultation Request</h2>
-      <table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse; max-width:600px; font-family:Arial, sans-serif;">
-        <tr><td><strong>Full Name</strong></td><td>${data.fullName}</td></tr>
-        <tr><td><strong>Email</strong></td><td>${data.email}</td></tr>
-        <tr><td><strong>Phone</strong></td><td>${data.phone}</td></tr>
-        <tr><td><strong>Business / Clinic</strong></td><td>${data.businessName}</td></tr>
-        <tr><td><strong>Role</strong></td><td>${data.role || "N/A"}</td></tr>
-        <tr><td><strong>City</strong></td><td>${data.city || "N/A"}</td></tr>
-        <tr><td><strong>Interested In</strong></td><td>${data.interest}</td></tr>
-        <tr><td><strong>Preferred Contact</strong></td><td>${data.connectionMethods.join(", ")}</td></tr>
-        <tr><td><strong>Additional Notes</strong></td><td>${data.additionalInfo || "None"}</td></tr>
-      </table>
+      <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; line-height: 1.6;">
+        <h2 style="color: #d49570; border-bottom: 2px solid #d49570; padding-bottom: 8px;">
+          New Contact Form Submission
+        </h2>
+        <p><strong>Name:</strong> ${inquiry.name}</p>
+        <p><strong>Email:</strong> ${inquiry.email}</p>
+        <p><strong>Phone:</strong> ${inquiry.phone || "Not provided"}</p>
+        <p><strong>Message:</strong></p>
+        <div style="background: #f9f9f9; border-left: 4px solid #d49570; padding: 12px 16px; margin: 10px 0; border-radius: 4px;">
+          ${inquiry.message}
+        </div>
+        <hr style="border: none; border-top: 1px solid #eee; margin-top: 20px;" />
+        <p style="font-size: 12px; color: #888;">
+          Sent automatically from the Karthika Machines Contact Page.
+        </p>
+      </div>
     `,
   };
 
-  await transporter.sendMail(mailOptions);
+  return await transporter.sendMail(mailOptions);
 };
+
+// 2. Consultation Booking Notification (Modal)
+export const sendConsultationNotification = async (consultation) => {
+  const mailOptions = {
+    from: `"KICS Website" <${getFromEmail()}>`,
+    to: getToEmail(),
+    subject: `🩺 New Consultation Booking: ${consultation.fullName || consultation.name}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; line-height: 1.6;">
+        <h2 style="color: #d49570; border-bottom: 2px solid #d49570; padding-bottom: 8px;">
+          New Consultation Request
+        </h2>
+        <p><strong>Full Name:</strong> ${consultation.fullName || consultation.name}</p>
+        <p><strong>Email:</strong> ${consultation.email}</p>
+        <p><strong>Phone:</strong> ${consultation.phone}</p>
+        <p><strong>Business / Clinic:</strong> ${consultation.businessName || "Not provided"}</p>
+        <p><strong>Role:</strong> ${consultation.role || "Not provided"}</p>
+        <p><strong>City:</strong> ${consultation.city || "Not provided"}</p>
+        <p><strong>Interest:</strong> ${consultation.interest || "General Inquiry"}</p>
+        <p><strong>Preferred Connection:</strong> ${
+          Array.isArray(consultation.connectionMethods)
+            ? consultation.connectionMethods.join(", ")
+            : consultation.connectionMethods || "Phone"
+        }</p>
+        <p><strong>Additional Info:</strong></p>
+        <div style="background: #f9f9f9; border-left: 4px solid #d49570; padding: 12px 16px; margin: 10px 0; border-radius: 4px;">
+          ${consultation.additionalInfo || "None"}
+        </div>
+        <hr style="border: none; border-top: 1px solid #eee; margin-top: 20px;" />
+        <p style="font-size: 12px; color: #888;">
+          Sent automatically from the Karthika Machines Consultation Booking Modal.
+        </p>
+      </div>
+    `,
+  };
+
+  return await transporter.sendMail(mailOptions);
+};
+
+export default transporter;

@@ -1,7 +1,12 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import logo from "../assets/kicslogo.png";
 
 const Footer = () => {
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <footer className="bg-black text-white w-full font-['Plus_Jakarta_Sans',sans-serif]">
       <div className="max-w-7xl mx-auto px-8 md:px-16 py-20 md:py-24">
@@ -9,8 +14,15 @@ const Footer = () => {
         <div className="flex flex-col lg:flex-row justify-between items-start gap-12 lg:gap-24">
           {/* ================= LEFT: BRAND & CONTACT SECTION ================= */}
           <div className="w-full lg:max-w-[360px] shrink-0">
-            {/* Logo + KICS Name */}
-            <div className="flex items-center gap-3 mb-5">
+            
+
+
+                       {/* Logo + KICS Name */}
+            <Link
+              to="/"
+              onClick={scrollToTop}
+              className="inline-flex items-center gap-3 mb-5 cursor-pointer"
+            >
               <div className="w-16 h-16 flex items-center justify-center shrink-0">
                 <img
                   src={logo}
@@ -21,7 +33,7 @@ const Footer = () => {
               <span className="text-[40px] md:text-[44px] font-bold tracking-wide leading-none">
                 KICS
               </span>
-            </div>
+            </Link>
 
             {/* Description (Exact 2 lines) */}
             <p className="text-white/80 text-[15px] font-normal leading-relaxed mb-10">
@@ -95,6 +107,7 @@ const Footer = () => {
           </div>
 
           {/* ================= RIGHT: LINKS / PRODUCTS / LEGAL COLUMNS ================= */}
+                    {/* ================= RIGHT: LINKS / PRODUCTS / LEGAL COLUMNS ================= */}
           <div className="w-full lg:flex-1 grid grid-cols-1 sm:grid-cols-3 gap-10 lg:gap-12">
             {/* MAIN LINKS */}
             <div>
@@ -103,30 +116,40 @@ const Footer = () => {
               </h4>
               <ul className="space-y-5 text-[14px] md:text-[15px] font-normal text-white/90">
                 <li>
-                  <a href="#home" className="hover:text-[#d49570] transition">
+                  <Link
+                    to="/"
+                    onClick={scrollToTop}
+                    className="hover:text-[#d49570] transition"
+                  >
                     HOME
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#about" className="hover:text-[#d49570] transition">
+                  <Link
+                    to="/about"
+                    onClick={scrollToTop}
+                    className="hover:text-[#d49570] transition"
+                  >
                     ABOUT
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="#testimonials"
+                  <Link
+                    to="/testimonials"
+                    onClick={scrollToTop}
                     className="hover:text-[#d49570] transition"
                   >
                     TESTIMONIALS
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="#contact"
+                  <Link
+                    to="/contact"
+                    onClick={scrollToTop}
                     className="hover:text-[#d49570] transition"
                   >
                     CONTACT
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -136,6 +159,26 @@ const Footer = () => {
               <h4 className="text-[17px] md:text-[18px] font-bold tracking-[0.14em] uppercase mb-8 text-white">
                 PRODUCTS
               </h4>
+              <ul className="space-y-5 text-[14px] md:text-[15px] font-normal text-white/90">
+                <li>
+                  <Link
+                    to="/products"
+                    onClick={scrollToTop}
+                    className="hover:text-[#d49570] transition"
+                  >
+                    ALL MACHINES
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/courses"
+                    onClick={scrollToTop}
+                    className="hover:text-[#d49570] transition"
+                  >
+                    COURSES
+                  </Link>
+                </li>
+              </ul>
             </div>
 
             {/* LEGAL */}

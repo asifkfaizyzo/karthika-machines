@@ -9,7 +9,7 @@ import Navbar from "../components/Navbar";
 import ConsultationModal from "../components/ConsultationModel";
 
 // --- SECTION 1, 2, 3 IMAGES (Using ../assets/) ---
-import bgImage from "../assets/Machines.png";
+import bgImage from "../assets/Machines.webp";
 import clinicImage from "../assets/img22.png";
 import machine1 from "../assets/frame1.png";
 import machine2 from "../assets/Rectangle 7.png";
@@ -244,9 +244,26 @@ useEffect(() => {
               beauty professionals.
             </p>
 
-            <div className="flex flex-wrap gap-4 items-center">
+            {/* <div className="flex flex-wrap gap-4 items-center">
               <button className={btnPrimary}>📞 Get in Touch ➔</button>
               <button className={btnOutline}>🛒 Shop Machines ➔</button>
+            </div> */}
+
+             <div className="flex flex-wrap gap-4 items-center">
+              <button
+                type="button"
+                onClick={() => navigate("/contact")}
+                className={btnPrimary}
+              >
+                📞 Get in Touch ➔
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate("/products")}
+                className={btnOutline}
+              >
+                🛒 Shop Machines ➔
+              </button>
             </div>
           </div>
         </main>

@@ -34,3 +34,13 @@ export const courseSchema = z.object({
     .optional()
     .default([]),
 });
+
+
+// 👇 Add these 2 bulk schemas
+export const bulkCourseSchema = z
+  .array(courseSchema)
+  .min(1, "At least one course is required");
+
+export const bulkDeleteSchema = z.object({
+  ids: z.array(z.number().int()).min(1, "Provide at least one course ID to delete"),
+});

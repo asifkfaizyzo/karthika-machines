@@ -86,3 +86,12 @@ export const productSchema = z.object({
     .optional()
     .default([]),
 });
+
+// 👇 Add these 2 validation schemas
+export const bulkProductSchema = z
+  .array(productSchema)
+  .min(1, "At least one product is required");
+
+export const bulkDeleteSchema = z.object({
+  ids: z.array(z.number().int()).min(1, "Provide at least one product ID to delete"),
+});

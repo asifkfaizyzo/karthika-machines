@@ -1,6 +1,7 @@
 import { z } from "zod";
 import * as productService from "./productService.js";
-import { productSchema } from "./productValidation.js";
+import { productSchema, bulkProductSchema, 
+         bulkDeleteSchema } from "./productValidation.js";
 
 // GET /api/products
 export const getProducts = async (req, res, next) => {
@@ -93,4 +94,67 @@ export const changeProductStatus = async (req, res, next) => {
     const updatedProduct = await productService.toggleProductStatus(id);
     res.status(200).json({ success: true, message: `Product is now ${updatedProduct.isActive ? 'Active' : 'Inactive'}`, data: updatedProduct });
   } catch (error) { next(error); }
+};
+
+
+// 👇 Add these 3 controller functions
+export const bulkAddProducts = async (req, res, next) => {
+  try {
+    const validatedData = bulkProductSchema.parse(req.body);
+    const newProducts = await productService.createMultipleProducts(validatedData);
+
+    res.status(201).json({
+      success: true,
+      message: `${newProducts.length} Products created successfully`,
+      count: newProducts.length,
+      data: newProducts,
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        success: false,
+        errors: error.errors.map((e) => ({
+          field: e.path.join("."),
+          message: e.message,
+        })),
+      });
+    }
+    next(error);
+  }
+};
+
+export const removeBulkProducts = async (req, res, next) => {
+  try {
+    const validatedData = bulkDeleteSchema.parse(req.body);
+    const result = await productService.deleteManyProductsByIds(validatedData.ids);
+    res.status(200).json({
+      success: true,
+      message: `${result.count} Products permanently deleted`,
+      count: result.count,
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        success: false,
+        errors: error.errors.map((e) => ({
+          field: e.path.join("."),
+          message: e.message,
+        })),
+      });
+    }
+    next(error);
+  }
+};
+
+export const removeAllProducts = async (req, res, next) => {
+  try {
+    const result = await productService.deleteAllProducts();
+    res.status(200).json({
+      success: true,
+      message: "All products permanently deleted",
+      count: result.count,
+    });
+  } catch (error) {
+    next(error);
+  }
 };

@@ -126,3 +126,51 @@ export const toggleCourseStatus = async (id) => {
     data: { isActive: !course.isActive },
   });
 };
+
+
+// 👇 Add these 3 service operations
+export const createMultipleCourses = async (coursesList) => {
+  return await prisma.$transaction(
+    coursesList.map((data) => {
+      const { keyPoints, lessons, ...courseData } = data;
+      return prisma.course.create({
+        data: {
+          ...courseData,
+          keyPoints: keyPoints?.length
+            ? {
+                create: keyPoints.map((k, i) => ({
+                  text: k.text,
+                  order: k.order ?? i + 1,
+                })),
+              }
+            : undefined,
+          lessons: lessons?.length
+            ? {
+                create: lessons.map((l, i) => ({
+                  title: l.title,
+                  detail: l.detail,
+                  order: l.order ?? i + 1,
+                })),
+              }
+            : undefined,
+        },
+        include: {
+          keyPoints: { orderBy: { order: "asc" } },
+          lessons: { orderBy: { order: "asc" } },
+        },
+      });
+    })
+  );
+};
+
+export const deleteManyCoursesByIds = async (ids) => {
+  return await prisma.course.deleteMany({
+    where: {
+      id: { in: ids },
+    },
+  });
+};
+
+export const deleteAllCourses = async () => {
+  return await prisma.course.deleteMany({});
+};

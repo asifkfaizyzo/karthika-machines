@@ -1,6 +1,7 @@
 import * as courseService from "./courseService.js";
 import { z } from "zod";
-import { courseSchema } from "./courseValidation.js";
+import { courseSchema, bulkCourseSchema,
+         bulkDeleteSchema, } from "./courseValidation.js";
 
 export const getCourses = async (req, res, next) => {
   try {
@@ -37,10 +38,6 @@ export const getCourseDetail = async (req, res, next) => {
   }
 };
 
-
-
-
-// Keep getCourses and getCourseDetail... then add:
 
 export const addCourse = async (req, res, next) => {
   try {
@@ -91,4 +88,67 @@ export const changeCourseStatus = async (req, res, next) => {
     const updatedCourse = await courseService.toggleCourseStatus(id);
     res.status(200).json({ success: true, message: `Course is now ${updatedCourse.isActive ? 'Active' : 'Inactive'}`, data: updatedCourse });
   } catch (error) { next(error); }
+};
+
+
+// 👇 Add these 3 controller functions
+export const bulkAddCourses = async (req, res, next) => {
+  try {
+    const validatedData = bulkCourseSchema.parse(req.body);
+    const newCourses = await courseService.createMultipleCourses(validatedData);
+
+    res.status(201).json({
+      success: true,
+      message: `${newCourses.length} Courses created successfully`,
+      count: newCourses.length,
+      data: newCourses,
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        success: false,
+        errors: error.errors.map((e) => ({
+          field: e.path.join("."),
+          message: e.message,
+        })),
+      });
+    }
+    next(error);
+  }
+};
+
+export const removeBulkCourses = async (req, res, next) => {
+  try {
+    const validatedData = bulkDeleteSchema.parse(req.body);
+    const result = await courseService.deleteManyCoursesByIds(validatedData.ids);
+    res.status(200).json({
+      success: true,
+      message: `${result.count} Courses permanently deleted`,
+      count: result.count,
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        success: false,
+        errors: error.errors.map((e) => ({
+          field: e.path.join("."),
+          message: e.message,
+        })),
+      });
+    }
+    next(error);
+  }
+};
+
+export const removeAllCourses = async (req, res, next) => {
+  try {
+    const result = await courseService.deleteAllCourses();
+    res.status(200).json({
+      success: true,
+      message: "All courses permanently deleted",
+      count: result.count,
+    });
+  } catch (error) {
+    next(error);
+  }
 };

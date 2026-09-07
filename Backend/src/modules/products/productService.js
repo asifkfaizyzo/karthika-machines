@@ -145,3 +145,61 @@ export const toggleProductStatus = async (id) => {
     data: { isActive: !product.isActive },
   });
 };
+
+
+// 👇 Add these 3 service operations
+export const createMultipleProducts = async (productsList) => {
+  return await prisma.$transaction(
+    productsList.map((data) => {
+      const { features, specs, whyChoose, ...productData } = data;
+      return prisma.product.create({
+        data: {
+          ...productData,
+          features: features?.length
+            ? {
+                create: features.map((f, i) => ({
+                  text: f.text,
+                  order: f.order ?? i + 1,
+                })),
+              }
+            : undefined,
+          specs: specs?.length
+            ? {
+                create: specs.map((s, i) => ({
+                  label: s.label,
+                  value: s.value,
+                  order: s.order ?? i + 1,
+                })),
+              }
+            : undefined,
+          whyChoose: whyChoose?.length
+            ? {
+                create: whyChoose.map((w, i) => ({
+                  title: w.title,
+                  detail: w.detail,
+                  order: w.order ?? i + 1,
+                })),
+              }
+            : undefined,
+        },
+        include: {
+          features: { orderBy: { order: "asc" } },
+          specs: { orderBy: { order: "asc" } },
+          whyChoose: { orderBy: { order: "asc" } },
+        },
+      });
+    })
+  );
+};
+
+export const deleteManyProductsByIds = async (ids) => {
+  return await prisma.product.deleteMany({
+    where: {
+      id: { in: ids },
+    },
+  });
+};
+
+export const deleteAllProducts = async () => {
+  return await prisma.product.deleteMany({});
+};

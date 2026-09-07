@@ -3,7 +3,7 @@ import api from "../api/axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import ConsultationModal from "../components/ConsultationModel";
-import testimonialsBg from "../assets/TestiBGimg.png";
+import testimonialsBg from "../assets/testiBGimg.webp"; // Updated to use the .webp version of the image
 
 const Testimonials = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
