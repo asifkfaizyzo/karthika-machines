@@ -65,7 +65,7 @@ const Navbar = ({ onBookConsultation, activeLink = "home" }) => {
         </span>
       </button>
 
-      {isMenuOpen && (
+           {isMenuOpen && (
         <div className="absolute left-4 right-4 top-full mt-2 flex flex-col gap-4 rounded-md bg-black/95 p-5 text-lg font-medium text-white shadow-lg md:hidden">
           <Link to="/" onClick={() => setIsMenuOpen(false)} className={linkClass("home")}>
             Home
@@ -82,17 +82,32 @@ const Navbar = ({ onBookConsultation, activeLink = "home" }) => {
           <Link to="/contact" onClick={() => setIsMenuOpen(false)} className={linkClass("contact")}>
             Contact
           </Link>
+
+          {/* Book Consultation button inside 3-line mobile menu */}
+          <button
+            type="button"
+            onClick={() => {
+              setIsMenuOpen(false);
+              onBookConsultation();
+            }}
+            className={`${btnPrimary} w-full mt-2`}
+          >
+            Book a Consultation
+          </button>
         </div>
       )}
 
-      {/* CTA */}
-      <button
-        type="button"
-        onClick={onBookConsultation}
-        className={btnPrimary}
-      >
-        Book a Consultation
-      </button>
+      {/* CTA - Desktop Only */}
+      <div className="hidden md:block">
+        <button
+          type="button"
+          onClick={onBookConsultation}
+          className={btnPrimary}
+        >
+          Book a Consultation
+        </button>
+      </div>
+
     </nav>
   );
 };
