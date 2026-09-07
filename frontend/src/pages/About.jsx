@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import api from "../api/axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import ConsultationModal from "../components/ConsultationModel";
@@ -17,11 +18,25 @@ const About = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState(null);
   const [founderStart, setFounderStart] = useState(0);
+  const [faqs, setFaqs] = useState([]);
+
+  useEffect(() => {
+    const loadFaqs = async () => {
+      try {
+        const res = await api.get("/faqs");
+        const data = res.data?.data || [];
+        setFaqs(data.length ? data : faqsFallback);
+      } catch (err) {
+        console.error("Error loading FAQs:", err);
+        setFaqs(faqsFallback);
+      }
+    };
+    loadFaqs();
+  }, []);
 
   
-
   // ================= FAQ DATA =================
-  const faqs = [
+const faqsFallback = [
     {
       id: 1,
       question: "Lorem Ipsum is simply dummy text of the printing",

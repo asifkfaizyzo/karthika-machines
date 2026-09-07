@@ -15,9 +15,14 @@ export const consultationSchema = z.object({
   phone: z
     .string()
     .trim()
-    .regex(
-      /^\+?[0-9\s()-]{6,20}$/,
-      "Valid phone number is required"
+    .min(1, "Phone number is required")
+    .refine(
+      (val) => {
+        if (!val) return false;
+        const digitsOnly = val.replace(/\D/g, "");
+        return digitsOnly.length >= 10 && digitsOnly.length <= 12;
+      },
+      { message: "Please enter a valid 10-digit phone number" }
     ),
 
   businessName: z
@@ -45,7 +50,7 @@ export const consultationSchema = z.object({
     .min(1, "Please select an interest"),
 
   connectionMethods: z
-    .array(z.enum(["email", "phone", "whatsapp"]))
+    .array(z.string())
     .min(1, "Select at least one connection method"),
 
   additionalInfo: z

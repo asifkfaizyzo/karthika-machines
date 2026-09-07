@@ -137,3 +137,50 @@ model CourseLesson {
 
   @@map("course_lessons")
 }
+
+
+// ─────────────────────────────────────
+// TESTIMONIALS (Home carousel + Testimonials page)
+// ─────────────────────────────────────
+
+model Testimonial {
+  id          Int      @id @default(autoincrement())
+
+  name        String
+  role        String
+  text        String   // quote / review text
+
+  // Optional image for "image cards" on Testimonials page
+  image       String?
+
+  rating      Float    @default(5)
+
+  // "IMAGE" = top row cards with photo
+  // "TEXT"  = quote cards without photo
+  type        String   @default("TEXT")
+
+  // Show in Home page testimonials slider
+  showOnHome  Boolean  @default(true)
+
+  isActive    Boolean  @default(true)
+  order       Int      @default(0)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("testimonials")
+}
+
+
+
+model Faq {
+  id        Int      @id @default(autoincrement())
+  question  String
+  answer    String
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("faqs")
+}

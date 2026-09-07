@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../api/axios";
 import { Clock3, GraduationCap } from "lucide-react";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
@@ -66,16 +67,16 @@ const carouselItems = [
       "simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since",
   },
   {
-  id: 5,
-  title: "HIFU MACHINE",
-  image: carousel5,
-  overviewTitle: "Module Overview",
-  overviewText:
-    "simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since",
-},
+    id: 5,
+    title: "HIFU MACHINE",
+    image: carousel5,
+    overviewTitle: "Module Overview",
+    overviewText:
+      "simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since",
+  },
 ];
 
-const testimonials = [
+const testimonialsFallback = [
   {
     id: 1,
     text: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has",
@@ -108,7 +109,7 @@ const testimonials = [
   },
 ];
 
-const faqs = [
+const faqsFallback = [
   {
     id: 1,
     question: "Lorem Ipsum is simply dummy text of the printing",
@@ -142,14 +143,13 @@ const faqs = [
 ];
 
 function App() {
+  const [activeIndex, setActiveIndex] = useState(carouselItems.length);
+  const [viewportWidth, setViewportWidth] = useState(() => window.innerWidth);
+  const navigate = useNavigate();
 
- const [activeIndex, setActiveIndex] = useState(carouselItems.length);
-const [viewportWidth, setViewportWidth] = useState(() => window.innerWidth);
-const navigate = useNavigate();
-
-// Repeated cards for continuous forward looping
-const loopItems = Array.from({ length: 100 }, () => carouselItems).flat();
-const baseCount = carouselItems.length;
+  // Repeated cards for continuous forward looping
+  const loopItems = Array.from({ length: 100 }, () => carouselItems).flat();
+  const baseCount = carouselItems.length;
 
   // Auto move
   useEffect(() => {
@@ -158,7 +158,6 @@ const baseCount = carouselItems.length;
     }, 3000);
     return () => clearInterval(id);
   }, []);
-
 
   useEffect(() => {
     const handleResize = () => setViewportWidth(window.innerWidth);
@@ -169,17 +168,51 @@ const baseCount = carouselItems.length;
   // Real active item for overview (0-3)
   const realActive = ((activeIndex % baseCount) + baseCount) % baseCount;
 
+  const [testimonials, setTestimonials] = useState([]);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
 
+  // Fetch Home testimonials from DB
   useEffect(() => {
-    const id = setInterval(() => {
-      setActiveTestimonial((prev) => (prev + 1) % testimonials.length);
-    }, 4000);
-    return () => clearInterval(id);
+    const loadHomeTestimonials = async () => {
+      try {
+        const res = await api.get("/testimonials?home=true");
+        const data = res.data?.data || [];
+        setTestimonials(data.length ? data : testimonialsFallback);
+      } catch (err) {
+        console.error("Error loading home testimonials:", err);
+        setTestimonials(testimonialsFallback);
+      }
+    };
+    loadHomeTestimonials();
   }, []);
 
-  const [openFaq, setOpenFaq] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+   useEffect(() => {
+    if (!testimonials.length) return;
+
+    const id = setInterval(() => {
+      setActiveTestimonial((prev) => prev + 1); // keep moving forward only
+    }, 4000);
+
+    return () => clearInterval(id);
+  }, [testimonials.length]);
+
+ const [faqs, setFaqs] = useState([]);
+const [openFaq, setOpenFaq] = useState(null);
+const [isModalOpen, setIsModalOpen] = useState(false);
+
+useEffect(() => {
+  const loadFaqs = async () => {
+    try {
+      const res = await api.get("/faqs");
+      const data = res.data?.data || [];
+      setFaqs(data.length ? data : faqsFallback);
+    } catch (err) {
+      console.error("Error loading FAQs:", err);
+      setFaqs(faqsFallback);
+    }
+  };
+  loadFaqs();
+}, []);
 
   return (
     <div className="bg-black">
@@ -259,10 +292,7 @@ const baseCount = carouselItems.length;
               </div>
             </div>
 
-
-           
-
-         <div className="w-full lg:w-1/2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="w-full lg:w-1/2 grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[
                 {
                   id: 1,
@@ -442,7 +472,8 @@ const baseCount = carouselItems.length;
 
               <button
                 type="button"
-                onClick={() => setIsModalOpen(true)}
+                // onClick={() => setIsModalOpen(true)}
+                onClick={() => navigate("/products")}
                 className={btnPrimary}
               >
                 Explore More
@@ -468,7 +499,7 @@ const baseCount = carouselItems.length;
           </div>
           <button
             type="button"
-            onClick={() => navigate("/courses")}
+            onClick={() => navigate("/products")}
             className={btnPrimary}
           >
             Explore Products
@@ -587,40 +618,58 @@ const baseCount = carouselItems.length;
                   transform: `translateY(-${activeTestimonial * 200}px)`,
                 }}
               >
-                {testimonials.map((t) => (
+                {/* {testimonials.map((t) => (
                   <div
-                    key={t.id}
-                    className="h-[200px] w-full flex flex-col justify-center items-center text-center shrink-0 px-4"
-                  >
-                    <p className="text-base sm:text-lg text-white/95 font-light leading-relaxed max-w-2xl mb-4">
-                      {t.text}
-                    </p>
-                    <h4 className="text-lg sm:text-xl font-medium text-white tracking-wide">
-                      {t.name}
-                    </h4>
-                    <p className="text-sm text-white/80 font-light mt-0.5">
-                      {t.role}
-                    </p>
-                  </div>
-                ))}
+                    key={t.id} */}
+
+                {Array.from({ length: 50 }, () => testimonials)
+                  .flat()
+                  .map((t, idx) => (
+                    <div
+                      key={`${t.id}-${idx}`}
+                      className="h-[200px] w-full flex flex-col justify-center items-center text-center shrink-0 px-4"
+                    >
+                      <p className="text-base sm:text-lg text-white/95 font-light leading-relaxed max-w-2xl mb-4">
+                        {t.text}
+                      </p>
+                      <h4 className="text-lg sm:text-xl font-medium text-white tracking-wide">
+                        {t.name}
+                      </h4>
+                      <p className="text-sm text-white/80 font-light mt-0.5">
+                        {t.role}
+                      </p>
+                    </div>
+                  ))}
               </div>
             </div>
           </div>
 
-          <div className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-2">
-            {testimonials.map((_, index) => (
-              <button
-                key={index}
-                type="button"
-                onClick={() => setActiveTestimonial(index)}
-                aria-label={`Go to slide ${index + 1}`}
-                className={`transition-all duration-300 rounded-full bg-white ${
-                  activeTestimonial === index
-                    ? "w-1.5 h-5 opacity-100"
-                    : "w-1.5 h-1.5 opacity-60 hover:opacity-100"
-                }`}
-              />
-            ))}
+                   <div className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-2">
+            {testimonials.map((_, index) => {
+              const len = testimonials.length;
+              if (!len) return null;
+              
+              // Calculates exactly which dot should be active (0 to 4) even if activeTestimonial is 55!
+              const realIndex = ((activeTestimonial % len) + len) % len;
+
+              return (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => {
+                    // Allows user to click a dot without jumping backwards visually
+                    const currentSet = Math.floor(activeTestimonial / len);
+                    setActiveTestimonial(currentSet * len + index);
+                  }}
+                  aria-label={`Go to slide ${index + 1}`}
+                  className={`transition-all duration-300 rounded-full bg-white ${
+                    realIndex === index
+                      ? "w-1.5 h-5 opacity-100"
+                      : "w-1.5 h-1.5 opacity-60 hover:opacity-100"
+                  }`}
+                />
+              );
+            })}
           </div>
         </div>
       </section>

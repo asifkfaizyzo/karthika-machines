@@ -5,7 +5,8 @@ import { productSchema } from "./productValidation.js";
 // GET /api/products
 export const getProducts = async (req, res, next) => {
   try {
-    const products = await productService.fetchAllProducts();
+     const { limit } = req.query; // <-- Extract limit from URL
+    const products = await productService.fetchAllProducts(limit);   //pass limit to service layer
     res.status(200).json({
       success: true,
       count: products.length,
@@ -61,4 +62,35 @@ export const addProduct = async (req, res, next) => {
     }
     next(error);
   }
+};
+
+
+
+
+// 2. ADD THESE 3 NEW CONTROLLERS:
+export const editProduct = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    // We can reuse the same schema, but make it partial (all fields optional) for updates
+    const validatedData = productSchema.partial().parse(req.body);
+    const updatedProduct = await productService.updateProduct(id, validatedData);
+    
+    res.status(200).json({ success: true, message: "Product updated", data: updatedProduct });
+  } catch (error) { next(error); }
+};
+
+export const removeProduct = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await productService.deleteProduct(id);
+    res.status(200).json({ success: true, message: "Product permanently deleted" });
+  } catch (error) { next(error); }
+};
+
+export const changeProductStatus = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const updatedProduct = await productService.toggleProductStatus(id);
+    res.status(200).json({ success: true, message: `Product is now ${updatedProduct.isActive ? 'Active' : 'Inactive'}`, data: updatedProduct });
+  } catch (error) { next(error); }
 };

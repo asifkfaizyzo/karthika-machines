@@ -14,12 +14,15 @@ export const bookConsultation = async (req, res, next) => {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
+      const formattedErrors = (error.issues || error.errors || []).map((e) => ({
+        field: Array.isArray(e.path) ? e.path.join(".") : "",
+        message: e.message,
+      }));
+
       return res.status(400).json({
         success: false,
-        errors: error.errors.map((e) => ({
-          field: e.path.join("."),
-          message: e.message,
-        })),
+        message: "Validation failed",
+        errors: formattedErrors,
       });
     }
     next(error);

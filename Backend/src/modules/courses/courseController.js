@@ -4,7 +4,8 @@ import { courseSchema } from "./courseValidation.js";
 
 export const getCourses = async (req, res, next) => {
   try {
-    const courses = await courseService.fetchAllCourses();
+    const { limit } = req.query; // <-- Extract limit
+    const courses = await courseService.fetchAllCourses(limit); // <-- Pass limit to service function
     res.status(200).json({
       success: true,
       count: courses.length,
@@ -63,4 +64,31 @@ export const addCourse = async (req, res, next) => {
     }
     next(error);
   }
+};
+
+
+// 2. ADD THESE 3 NEW CONTROLLERS:
+export const editCourse = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const validatedData = courseSchema.partial().parse(req.body);
+    const updatedCourse = await courseService.updateCourse(id, validatedData);
+    res.status(200).json({ success: true, message: "Course updated", data: updatedCourse });
+  } catch (error) { next(error); }
+};
+
+export const removeCourse = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await courseService.deleteCourse(id);
+    res.status(200).json({ success: true, message: "Course permanently deleted" });
+  } catch (error) { next(error); }
+};
+
+export const changeCourseStatus = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const updatedCourse = await courseService.toggleCourseStatus(id);
+    res.status(200).json({ success: true, message: `Course is now ${updatedCourse.isActive ? 'Active' : 'Inactive'}`, data: updatedCourse });
+  } catch (error) { next(error); }
 };

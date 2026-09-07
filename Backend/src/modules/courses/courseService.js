@@ -1,8 +1,10 @@
 import prisma from "../../config/db.js";
 
-export const fetchAllCourses = async () => {
+//Get all Course
+export const fetchAllCourses = async (limit) => {
   return await prisma.course.findMany({
     where: { isActive: true },
+     take: limit ? parseInt(limit) : undefined, // <-- Added limit
     select: {
       id: true,
       title: true,
@@ -17,6 +19,8 @@ export const fetchAllCourses = async () => {
   });
 };
 
+
+//Get course by id or slug
 export const fetchCourseByIdOrSlug = async (identifier) => {
   const isNumeric = !isNaN(identifier);
 
@@ -62,8 +66,7 @@ export const fetchCourseByIdOrSlug = async (identifier) => {
 };
 
 
-
-// Add this export to courseService.js:
+// Create Course
 export const createCourse = async (data) => {
   const { keyPoints, lessons, ...courseData } = data;
 
@@ -92,5 +95,34 @@ export const createCourse = async (data) => {
       keyPoints: { orderBy: { order: "asc" } },
       lessons: { orderBy: { order: "asc" } },
     },
+  });
+};
+
+
+// 2. ADD THESE 3 NEW FUNCTIONS:
+export const updateCourse = async (id, data) => {
+  const { keyPoints, lessons, ...courseData } = data;
+
+  return await prisma.course.update({
+    where: { id: parseInt(id) },
+    data: {
+      ...courseData,
+      keyPoints: keyPoints ? { deleteMany: {}, create: keyPoints.map((k, i) => ({ text: k.text, order: k.order ?? i + 1 })) } : undefined,
+      lessons: lessons ? { deleteMany: {}, create: lessons.map((l, i) => ({ title: l.title, detail: l.detail, order: l.order ?? i + 1 })) } : undefined,
+    },
+    include: { keyPoints: true, lessons: true }
+  });
+};
+
+export const deleteCourse = async (id) => {
+  return await prisma.course.delete({ where: { id: parseInt(id) } });
+};
+
+export const toggleCourseStatus = async (id) => {
+  const course = await prisma.course.findUnique({ where: { id: parseInt(id) } });
+  if (!course) return null;
+  return await prisma.course.update({
+    where: { id: parseInt(id) },
+    data: { isActive: !course.isActive },
   });
 };

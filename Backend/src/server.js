@@ -6,6 +6,8 @@ import dotenv from "dotenv";
 import productRoutes from "./modules/products/productRoutes.js";
 import courseRoutes from "./modules/courses/courseRoutes.js";
 import consultationRoutes from "./modules/consultations/consultationRoutes.js";
+import testimonialRoutes from "./modules/testimonials/testimonialRoutes.js";
+import faqRoutes from "./modules/faqs/faqRoutes.js";
 import uploadRoutes from "./modules/uploads/uploadRoutes.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
@@ -38,6 +40,8 @@ app.use("/api/upload", uploadRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/consultations", consultationRoutes);
+app.use("/api/testimonials", testimonialRoutes);
+app.use("/api/faqs", faqRoutes);
 
 // Global Error Handler
 app.use(errorHandler);
