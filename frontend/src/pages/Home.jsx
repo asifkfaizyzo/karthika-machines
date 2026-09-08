@@ -8,7 +8,7 @@ import Navbar from "../components/Navbar";
 import ConsultationModal from "../components/ConsultationModel";
 
 // --- SECTION 1, 2, 3 IMAGES ---
-import bgImage from "../assets/machines.webp";
+import bgImage from "../assets/Machines.webp";
 import clinicImage from "../assets/homeimg2.webp";
 import machine1 from "../assets/frame1.webp";
 import machine2 from "../assets/rectangle-7.webp";
