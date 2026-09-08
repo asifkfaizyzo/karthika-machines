@@ -12,12 +12,10 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-8 md:px-16 py-20 md:py-24">
         {/* Main Layout: Separated into Left (Brand) and Right (Navigation Columns) with a large gap */}
         <div className="flex flex-col lg:flex-row justify-between items-start gap-12 lg:gap-24">
+          
           {/* ================= LEFT: BRAND & CONTACT SECTION ================= */}
           <div className="w-full lg:max-w-[360px] shrink-0">
-            
-
-
-                       {/* Logo + KICS Name */}
+            {/* Logo + KICS Name */}
             <Link
               to="/"
               onClick={scrollToTop}
@@ -107,7 +105,6 @@ const Footer = () => {
           </div>
 
           {/* ================= RIGHT: LINKS / PRODUCTS / LEGAL COLUMNS ================= */}
-                    {/* ================= RIGHT: LINKS / PRODUCTS / LEGAL COLUMNS ================= */}
           <div className="w-full lg:flex-1 grid grid-cols-1 sm:grid-cols-3 gap-10 lg:gap-12">
             {/* MAIN LINKS */}
             <div>
@@ -211,7 +208,19 @@ const Footer = () => {
               </ul>
             </div>
           </div>
+
         </div>
+
+        {/* ================= BOTTOM ROW: COPYRIGHT & DESIGN ATTRIBUTION ================= */}
+        <div className="border-t border-white/10 mt-16 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-[13px] md:text-[14px] text-white/60">
+          <p className="font-light tracking-wide">
+            Copyright © 2026 KICS. All Rights Reserved
+          </p>
+        <p className="font-light tracking-wide">
+            Designed by Your Zeros and Ones
+          </p>
+        </div>
+
       </div>
     </footer>
   );

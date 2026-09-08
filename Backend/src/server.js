@@ -3,6 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import dotenv from "dotenv";
 
+import authRoutes from "./modules/auth/authRoutes.js";
 import productRoutes from "./modules/products/productRoutes.js";
 import courseRoutes from "./modules/courses/courseRoutes.js";
 import consultationRoutes from "./modules/consultations/consultationRoutes.js";
@@ -34,6 +35,7 @@ app.get("/api/health", (req, res) => {
   res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
+app.use("/api/auth", authRoutes);
 // Register Feature Modules
 //Image & Media Upload Route (Cloudinary)
 app.use("/api/upload", uploadRoutes); 

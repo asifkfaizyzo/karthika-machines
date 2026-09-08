@@ -1,22 +1,29 @@
+// convert.js
 import sharp from "sharp";
 import fs from "fs";
 
-// Put the images you want to convert here:
 const imagesToConvert = [
-  { input: "./src/assets/aboutBGimg.png", output: "./src/assets/aboutBGimg.webp" },
-  { input: "./src/assets/Machines.png", output: "./src/assets/Machines.webp" },
-  { input: "./src/assets/contactBG.png", output: "./src/assets/contactBG.webp" },
-   { input: "./src/assets/courseBG.png", output: "./src/assets/courseBG.webp" },
-    { input: "./src/assets/produBackgrnd.png", output: "./src/assets/produBackgrnd.webp" },
-     { input: "./src/assets/testiBGimg.png", output: "./src/assets/testiBGimg.webp" },
-     { input: "./src/assets/courseDetailsBG.png", output: "./src/assets/courseDetailsBG.webp" },
-      { input: "./src/assets/Frame 455.png", output: "./src/assets/Frame 455.webp" },
+  // Home page images
+  { input: "./src/assets/homeimg2.png", output: "./src/assets/homeimg2.webp" },
+  { input: "./src/assets/frame1.png", output: "./src/assets/frame1.webp" },
+  { input: "./src/assets/rectangle-6.png", output: "./src/assets/rectangle-6.webp" },
+  { input: "./src/assets/rectangle-7.png", output: "./src/assets/rectangle-7.webp" },
+  { input: "./src/assets/rectangle-8.png", output: "./src/assets/rectangle-8.webp" },
+  { input: "./src/assets/backgrnd3.png", output: "./src/assets/backgrnd3.webp" },
+  { input: "./src/assets/testimonials.png", output: "./src/assets/testimonials.webp" },
+
+  // Carousel images
+  { input: "./src/assets/carousel1.png", output: "./src/assets/carousel1.webp" },
+  { input: "./src/assets/carousel2.png", output: "./src/assets/carousel2.webp" },
+  { input: "./src/assets/carousel3.png", output: "./src/assets/carousel3.webp" },
+  { input: "./src/assets/carousel4.png", output: "./src/assets/carousel4.webp" },
+  { input: "./src/assets/carousel5.png", output: "./src/assets/carousel5.webp" },
 ];
 
 imagesToConvert.forEach(({ input, output }) => {
   if (fs.existsSync(input)) {
     sharp(input)
-      .resize(1920) // standard screen width
+      .resize(1920, null, { withoutEnlargement: true })
       .webp({ quality: 80 })
       .toFile(output)
       .then((info) => {
