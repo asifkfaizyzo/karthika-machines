@@ -13,6 +13,7 @@ import founderRoutes from "./modules/founders/founderRoutes.js";
 import contactRoutes from "./modules/contacts/contactRoutes.js";
 import uploadRoutes from "./modules/uploads/uploadRoutes.js";
 import { errorHandler } from "./middleware/errorHandler.js";
+import notificationRoutes from "./modules/notifications/notificationRoutes.js";
 
 dotenv.config();
 
@@ -48,6 +49,7 @@ app.use("/api/testimonials", testimonialRoutes);
 app.use("/api/faqs", faqRoutes);
 app.use("/api/founders", founderRoutes);
 app.use("/api/contacts", contactRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 // Global Error Handler
 app.use(errorHandler);

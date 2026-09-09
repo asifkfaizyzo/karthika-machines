@@ -3,13 +3,13 @@ import { Link } from "react-router-dom";
 import {
   Package,
   MessageSquare,
-  GraduationCap,
   Mail,
   Users,
-  Image as ImageIcon,
   BookOpen,
   Plus,
   ArrowRight,
+  CalendarCheck,
+  HelpCircle,
 } from "lucide-react";
 import api from "../../api/axios";
 
@@ -21,6 +21,7 @@ const Dashboard = () => {
     founders: 0,
     contacts: 0,
     consultations: 0,
+    faqs: 0,
   });
 
   useEffect(() => {
@@ -29,15 +30,23 @@ const Dashboard = () => {
 
   const fetchStats = async () => {
     try {
-      const [products, courses, testimonials, founders, contacts, consultations] =
-        await Promise.all([
-          api.get("/products").catch(() => ({ data: { data: [] } })),
-          api.get("/courses").catch(() => ({ data: { data: [] } })),
-          api.get("/testimonials").catch(() => ({ data: { data: [] } })),
-          api.get("/founders").catch(() => ({ data: { data: [] } })),
-          api.get("/contacts").catch(() => ({ data: { data: [] } })),
-          api.get("/consultations").catch(() => ({ data: { data: [] } })),
-        ]);
+      const [
+        products,
+        courses,
+        testimonials,
+        founders,
+        contacts,
+        consultations,
+        faqs,
+      ] = await Promise.all([
+        api.get("/products").catch(() => ({ data: { data: [] } })),
+        api.get("/courses").catch(() => ({ data: { data: [] } })),
+        api.get("/testimonials").catch(() => ({ data: { data: [] } })),
+        api.get("/founders").catch(() => ({ data: { data: [] } })),
+        api.get("/contacts").catch(() => ({ data: { data: [] } })),
+        api.get("/consultations").catch(() => ({ data: { data: [] } })),
+        api.get("/faqs").catch(() => ({ data: { data: [] } })),
+      ]);
 
       setStats({
         products: products.data?.data?.length || 0,
@@ -46,6 +55,7 @@ const Dashboard = () => {
         founders: founders.data?.data?.length || 0,
         contacts: contacts.data?.data?.length || 0,
         consultations: consultations.data?.data?.length || 0,
+        faqs: faqs.data?.data?.length || 0,
       });
     } catch (err) {
       console.error("Stats error:", err);
@@ -88,16 +98,62 @@ const Dashboard = () => {
   ];
 
   const smallCards = [
-    { label: "Founders", value: stats.founders, icon: Users, link: "/admin/founders" },
-    { label: "Consultations", value: stats.consultations, icon: MessageSquare, link: "/admin/consultations" },
-    { label: "Gallery Items", value: 0, icon: ImageIcon, link: "#" },
+    {
+      label: "Founders",
+      value: stats.founders,
+      icon: Users,
+      link: "/admin/founders",
+    },
+    {
+      label: "Consultation Bookings",
+      value: stats.consultations,
+      icon: CalendarCheck,
+      link: "/admin/consultations",
+    },
+    {
+      label: "FAQs",
+      value: stats.faqs,
+      icon: HelpCircle,
+      link: "/admin/faqs",
+    },
   ];
 
   const quickActions = [
-    { label: "Add New Product", desc: "Create a new product listing", icon: Package, link: "/admin/products/new" },
-    { label: "Add Testimonial", desc: "Add a client review", icon: MessageSquare, link: "/admin/testimonials/new" },
-    { label: "Add New Course", desc: "Create a new course", icon: BookOpen, link: "/admin/courses/new" },
-    { label: "Add Founder", desc: "Add team member", icon: Users, link: "/admin/founders/new" },
+    {
+      label: "Add New Product",
+      desc: "Create a new product listing",
+      icon: Package,
+      link: "/admin/products",
+      state: { openCreate: true },
+    },
+    {
+      label: "Add Testimonial",
+      desc: "Add a client review",
+      icon: MessageSquare,
+      link: "/admin/testimonials",
+      state: { openCreate: true },
+    },
+    {
+      label: "Add New Course",
+      desc: "Create a new course",
+      icon: BookOpen,
+      link: "/admin/courses",
+      state: { openCreate: true },
+    },
+    {
+      label: "Add Founder",
+      desc: "Add team member",
+      icon: Users,
+      link: "/admin/founders",
+      state: { openCreate: true },
+    },
+    {
+      label: "Add FAQ",
+      desc: "Create Q&A support item",
+      icon: HelpCircle,
+      link: "/admin/faqs",
+      state: { openCreate: true },
+    },
   ];
 
   return (
@@ -121,7 +177,9 @@ const Dashboard = () => {
               className="bg-white/70 backdrop-blur rounded-2xl p-6 hover:shadow-md transition-all group"
             >
               <div className="flex items-start justify-between mb-4">
-                <div className={`w-11 h-11 rounded-xl ${c.color} flex items-center justify-center`}>
+                <div
+                  className={`w-11 h-11 rounded-xl ${c.color} flex items-center justify-center`}
+                >
                   <Icon className="w-5 h-5 text-white" />
                 </div>
                 <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-700 group-hover:translate-x-1 transition-all" />
@@ -171,6 +229,7 @@ const Dashboard = () => {
               <Link
                 key={a.label}
                 to={a.link}
+                state={a.state}
                 className="flex items-center gap-4 bg-white border border-gray-100 rounded-xl p-4 hover:border-gray-300 hover:shadow-sm transition-all group"
               >
                 <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">

@@ -14,11 +14,11 @@ export const productSchema = z.object({
     .min(1, "Product slug is required")
     .toLowerCase(),
 
-  price: z
-    .string()
-    .trim()
-    .min(1, "Price is required"),
-
+ price: z
+    .union([z.string(), z.number()])
+    .transform((val) => String(val).trim())
+    .refine((val) => val.length > 0, "Price is required"),
+    
   shortDescription: z
     .string()
     .trim()
@@ -27,7 +27,9 @@ export const productSchema = z.object({
   longDescription: z
     .string()
     .trim()
-    .min(1, "Long description is required"),
+    .optional()
+    .nullable()
+    .transform((val) => (!val || val === "" ? null : val)),
 
   mainImage: z
     .string()

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -7,12 +6,11 @@ import {
   MessageSquare,
   Users,
   Mail,
-  LogOut,
+  LogOut, CalendarCheck,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
-const Sidebar = () => {
-  const [expanded, setExpanded] = useState(false);
+const Sidebar = ({ expanded, setExpanded }) => {
   const { admin, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -28,13 +26,14 @@ const Sidebar = () => {
     { label: "Testimonials", path: "/admin/testimonials", icon: MessageSquare },
     { label: "Founders", path: "/admin/founders", icon: Users },
     { label: "Contacts", path: "/admin/contacts", icon: Mail },
+    { label: "Consultations", path: "/admin/consultations", icon: CalendarCheck },
   ];
 
   return (
     <aside
       onMouseEnter={() => setExpanded(true)}
       onMouseLeave={() => setExpanded(false)}
-      className={`fixed top-0 left-0 h-screen bg-white border-r border-gray-200 flex flex-col transition-all duration-300 z-40
+      className={`h-screen bg-white border-r border-gray-200 flex flex-col transition-all duration-300 ease-in-out flex-shrink-0
         ${expanded ? "w-60" : "w-16"}`}
     >
       {/* Logo Header */}
@@ -46,13 +45,13 @@ const Sidebar = () => {
         />
         <span
           className={`font-serif font-bold text-xl text-[#111] ml-3 transition-all duration-200 whitespace-nowrap
-      ${expanded ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2"}`}
+            ${expanded ? "opacity-100" : "opacity-0 w-0"}`}
         >
           Karthika
         </span>
       </div>
 
-      {/* Navigation Menu */}
+      {/* Menu */}
       <nav className="flex-1 py-4 space-y-1 overflow-hidden">
         {menuItems.map((item) => {
           const Icon = item.icon;
@@ -82,7 +81,7 @@ const Sidebar = () => {
         })}
       </nav>
 
-      {/* Admin Profile & Logout */}
+      {/* Profile & Logout */}
       <div className="border-t border-gray-100 p-2 space-y-1">
         <div className="flex items-center gap-3 mx-1 px-2 py-2.5 rounded-xl overflow-hidden">
           <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 font-semibold text-sm flex-shrink-0">

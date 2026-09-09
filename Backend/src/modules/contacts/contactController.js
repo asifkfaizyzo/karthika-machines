@@ -2,6 +2,7 @@ import { z } from "zod";
 import * as contactService from "./contactService.js";
 import { inquirySchema } from "./contactValidation.js";
 import { sendContactNotification } from "../../utils/mailer.js";
+import { createNotification } from "../notifications/notificationService.js";
 
 const formatZodErrors = (error) => ({
   success: false,
@@ -16,6 +17,19 @@ export const createInquiry = async (req, res, next) => {
   try {
     const validated = inquirySchema.parse(req.body);
     const created = await contactService.saveInquiry(validated);
+
+       // 👇 Create admin notification
+    try {
+      await createNotification({
+        type: "CONTACT",
+        title: "New Contact Message",
+        message: `${validated.name} sent an inquiry: "${validated.message.substring(0, 60)}..."`,
+        relatedId: created.id,
+        link: "/admin/contacts",
+      });
+    } catch (notifErr) {
+      console.error("Failed to create notification:", notifErr.message);
+    }
 
     // 👈 2. Trigger email sending and log error if SMTP fails
     try {

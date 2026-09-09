@@ -40,10 +40,18 @@ export const getProductDetail = async (req, res, next) => {
   }
 };
 
+
 // POST /api/products
 export const addProduct = async (req, res, next) => {
   try {
-    const validatedData = productSchema.parse(req.body);
+    const requestData = {
+      features: [],
+      specs: [],
+      whyChoose: [],
+      ...req.body,
+    };
+
+    const validatedData = productSchema.parse(requestData);
     const newProduct = await productService.createProduct(validatedData);
 
     res.status(201).json({
@@ -52,20 +60,31 @@ export const addProduct = async (req, res, next) => {
       data: newProduct,
     });
   } catch (error) {
-    if (error instanceof z.ZodError) {
+    // Catch duplicate product errors (Prisma Code P2002)
+    if (error.code === "P2002") {
       return res.status(400).json({
         success: false,
-        errors: error.errors.map((e) => ({
-          field: e.path.join("."),
-          message: e.message,
-        })),
+        message: "A product with this Title or URL Slug already exists in your catalog. Please use a different name.",
       });
     }
+
+    // Catch Zod Validation Errors
+    if (error.name === "ZodError" || error.issues || error.errors) {
+      const issueList = error.issues || error.errors || [];
+      const firstIssue = issueList[0];
+      const errorMessage = firstIssue
+        ? `Please check '${firstIssue.path.join(".")}': ${firstIssue.message}`
+        : "Validation failed";
+
+      return res.status(400).json({
+        success: false,
+        message: errorMessage,
+      });
+    }
+
     next(error);
   }
 };
-
-
 
 
 // 2. ADD THESE 3 NEW CONTROLLERS:
