@@ -18,6 +18,13 @@ import AdminLogin from "./pages/admin/Login";
 import ProtectedRoute from "./components/admin/ProtectedRoute";
 import AdminLayout from "./components/admin/AdminLayout";
 import Dashboard from "./pages/admin/Dashboard";
+import ProductList from "./pages/admin/products/ProductList";
+import CourseList from "./pages/admin/courses/CourseList";
+import TestimonialList from "./pages/admin/testimonials/TestimonialList";
+import FounderList from "./pages/admin/founders/FounderList";
+import ContactList from "./pages/admin/contacts/ContactList";
+import ConsultationList from "./pages/admin/consultations/ConsultationList";
+import FaqList from "./pages/admin/faqs/FaqList";
 
 import "./App.css";
 
@@ -44,6 +51,13 @@ function App() {
           <Route path="/admin" element={<ProtectedRoute />}>
             <Route element={<AdminLayout />}>
               <Route index element={<Dashboard />} />
+              <Route path="products" element={<ProductList />} />
+              <Route path="courses" element={<CourseList />} />
+              <Route path="testimonials" element={<TestimonialList />} />
+              <Route path="founders" element={<FounderList />} />
+              <Route path="contacts" element={<ContactList />} />
+               <Route path="consultations" element={<ConsultationList />} />
+               <Route path="faqs" element={<FaqList />} />
             </Route>
           </Route>
         </Routes>

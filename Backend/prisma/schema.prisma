@@ -222,3 +222,19 @@ model Admin {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+
+model Notification {
+  id         Int       @id @default(autoincrement())
+  type       String    // "CONSULTATION" or "CONTACT"
+  title      String
+  message    String
+  relatedId  Int?      // ID of the consultation/contact
+  link       String?   // e.g. "/admin/consultations"
+  isRead     Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("notifications")
+}

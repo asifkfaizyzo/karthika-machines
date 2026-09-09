@@ -1,18 +1,23 @@
+import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
+import NotificationBell from "./NotificationBell"; // 👈 ADD
 import { useAuth } from "../../context/AuthContext";
 
 const AdminLayout = () => {
   const { admin } = useAuth();
+  const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#FAF6F0] to-[#EFE4D6]">
-      <Sidebar />
+    <div className="min-h-screen flex bg-gradient-to-b from-[#FAF6F0] to-[#EFE4D6]">
+      {/* Sidebar — width controlled by expanded */}
+      <Sidebar expanded={expanded} setExpanded={setExpanded} />
 
-      {/* Content area — offset by 64px for collapsed sidebar */}
-      <div className="ml-16 min-h-screen">
+      {/* Main content — always takes remaining space */}
+      <div className="flex-1 min-w-0 flex flex-col min-h-screen transition-all duration-300">
         {/* Top bar */}
-        <header className="bg-transparent px-8 py-6 flex items-center justify-end">
+        <header className="px-6 md:px-8 py-5 flex items-center justify-end gap-6 flex-shrink-0">
+          <NotificationBell />
           <div className="flex items-center gap-3">
             <div className="text-right">
               <p className="text-sm font-semibold text-[#111]">
@@ -26,7 +31,8 @@ const AdminLayout = () => {
           </div>
         </header>
 
-        <main className="px-8 pb-8">
+        {/* Page content */}
+        <main className="flex-1 px-6 md:px-8 pb-8 overflow-x-auto">
           <Outlet />
         </main>
       </div>

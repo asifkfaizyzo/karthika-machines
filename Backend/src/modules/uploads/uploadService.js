@@ -7,6 +7,8 @@ export const uploadImageToCloudinary = (fileBuffer, folder = "karthika_machines"
       {
         folder,
         resource_type: "image",
+        fetch_format: "auto", // Auto converts to WebP/AVIF for high performance
+        quality: "auto",      // Auto compresses image file size without losing quality
       },
       (error, result) => {
         if (error) return reject(error);
