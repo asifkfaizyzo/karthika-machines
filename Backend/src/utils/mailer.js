@@ -3,26 +3,66 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// Create transporter using your .env SMTP variables
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || "smtp.gmail.com",
-  port: parseInt(process.env.SMTP_PORT, 10) || 587,
-  secure: false, // true for port 465, false for 587
-  auth: {
-    user: process.env.SMTP_USER || process.env.EMAIL_USER,
-    pass: process.env.SMTP_PASS || process.env.EMAIL_PASS,
-  },
+const smtpUser = process.env.SMTP_USER || process.env.EMAIL_USER;
+const smtpPass = process.env.SMTP_PASS || process.env.EMAIL_PASS;
+const smtpHost = process.env.SMTP_HOST || "smtp.gmail.com";
+
+// Check if using Gmail
+const isGmail = smtpHost.includes("gmail") || smtpUser?.includes("@gmail.com");
+
+// Live-server safe transporter
+const transporter = nodemailer.createTransport(
+  isGmail
+    ? {
+        service: "gmail",
+        auth: {
+          user: smtpUser,
+          pass: smtpPass,
+        },
+        tls: {
+          rejectUnauthorized: false, // Prevents live server SSL handshake drops
+        },
+      }
+    : {
+        host: smtpHost,
+        port: parseInt(process.env.SMTP_PORT, 10) || 465,
+        secure: true,
+        auth: {
+          user: smtpUser,
+          pass: smtpPass,
+        },
+        tls: {
+          rejectUnauthorized: false,
+        },
+      }
+);
+
+// Verify connection configuration on server startup
+transporter.verify((error, success) => {
+  if (error) {
+    console.error("❌ Mailer Connection Error on Live Server:", error.message);
+  } else {
+    console.log("✅ Mailer is connected and ready to send emails!");
+  }
 });
 
-const getFromEmail = () => process.env.SMTP_USER || process.env.EMAIL_USER;
+const getFromEmail = () => smtpUser;
 const getToEmail = () =>
   process.env.NOTIFICATION_EMAIL || process.env.COMPANY_EMAIL || getFromEmail();
 
 // 1. Contact Form Notification (Contact Page)
 export const sendContactNotification = async (inquiry) => {
+  const fromEmail = getFromEmail();
+  const toEmail = getToEmail();
+
+  if (!fromEmail || !toEmail) {
+    console.error("❌ Mailer Error: Missing SMTP_USER or NOTIFICATION_EMAIL in environment variables.");
+    return null;
+  }
+
   const mailOptions = {
-    from: `"KICS Website" <${getFromEmail()}>`,
-    to: getToEmail(),
+    from: `"KICS Website" <${fromEmail}>`,
+    to: toEmail,
     subject: `📩 New Contact Form Message from ${inquiry.name}`,
     html: `
       <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; line-height: 1.6;">
@@ -49,9 +89,17 @@ export const sendContactNotification = async (inquiry) => {
 
 // 2. Consultation Booking Notification (Modal)
 export const sendConsultationNotification = async (consultation) => {
+  const fromEmail = getFromEmail();
+  const toEmail = getToEmail();
+
+  if (!fromEmail || !toEmail) {
+    console.error("❌ Mailer Error: Missing SMTP_USER or NOTIFICATION_EMAIL in environment variables.");
+    return null;
+  }
+
   const mailOptions = {
-    from: `"KICS Website" <${getFromEmail()}>`,
-    to: getToEmail(),
+    from: `"KICS Website" <${fromEmail}>`,
+    to: toEmail,
     subject: `🩺 New Consultation Booking: ${consultation.fullName || consultation.name}`,
     html: `
       <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; line-height: 1.6;">
