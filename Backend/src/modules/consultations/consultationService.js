@@ -7,10 +7,13 @@ export const createNewConsultation = async (data) => {
     data,
   });
 
-  // Trigger email in background without blocking response
-  sendConsultationNotification(consultation).catch((err) =>
-    console.error("Failed to send consultation email alert:", err)
-  );
+  // Await the email so the live server finishes sending before terminating the connection
+  try {
+    await sendConsultationNotification(consultation);
+    console.log("📧 Consultation email sent successfully to company!");
+  } catch (err) {
+    console.error("❌ Failed to send consultation email alert:", err.message);
+  }
 
   return consultation;
 };
